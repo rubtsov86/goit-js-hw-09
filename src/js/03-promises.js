@@ -1,6 +1,9 @@
 import Notiflix from 'notiflix';
+Notiflix.Notify.init({
+  useIcon: false,
+});
 
-const createdArrayPromise = [];
+let createdArrayPromise = [];
 
 
 const formRef = document.querySelector('.form');
@@ -14,16 +17,17 @@ formRef.addEventListener('submit', onFormSubmit);
 
 function onFormSubmit(e) {
   e.preventDefault();
-
   
+  createdArrayPromise = [];
   createArray(inputAmountRef.value);
-  createdArrayPromise.reduce((acc, delay) => {createPromise(acc, delay)}, 1);
+
+  createdArrayPromise.reduce((acc, delay) => { createPromise(acc, delay).then(onSuccses).catch(onError); acc += 1; return acc}, 1);
 }
 
 function createPromise(position, delay) {
   const shouldResolve = Math.random() > 0.3;
 
-  const promise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
   setTimeout( () => {
     if (shouldResolve) {
       resolve(`✅ Fulfilled promise ${position} in ${delay}ms`);
@@ -33,18 +37,16 @@ function createPromise(position, delay) {
   }, delay);
 });
   
-  return promise.then(
-    value => {
-      Notiflix.Notify.success(value); // "Success! Value passed to resolve function"
-    })
-    .catch(error => {
-      Notiflix.Notify.failure(error);
-    }); 
-
 }
 
 
+const onSuccses = value => {
+  Notiflix.Notify.success(value);
+};
 
+const onError = error => {
+  Notiflix.Notify.failure(error);
+};
 
 
 function createArray(number) {
