@@ -2,7 +2,7 @@ import flatpickr from "flatpickr";
 import "flatpickr/dist/flatpickr.min.css";
 import Notiflix from 'notiflix';
 
-let date = null;
+let deltaTime = null;
 let timerInterval = null;
 
 const buttonStartRef = document.querySelector('[data-start]');
@@ -20,12 +20,15 @@ const options = {
   defaultDate: new Date(),
   minuteIncrement: 1,
   onClose(selectedDates) {
-    
+    if (deltaTime !== null) {
+      return Notiflix.Notify.failure('Date was set');
+    }
+
     if (options.defaultDate.getTime() > selectedDates[0].getTime()) {
       return Notiflix.Notify.failure('Please choose a date in the future');
     }
     buttonStartRef.removeAttribute('disabled');
-    date = selectedDates[0].getTime() - options.defaultDate.getTime();
+    deltaTime = selectedDates[0] - options.defaultDate;
   },
 };
 
@@ -41,19 +44,19 @@ function onClickButtonStart(e) {
 }
 
 function timerStart() {
-  console.log(date);
-  if (date <= 0 ) {
+  console.log(deltaTime);
+  if (deltaTime <= 0 ) {
     clearInterval(timerInterval);
     return;
   }
 
-  const time = convertMs(date);
+  const time = convertMs(deltaTime);
 
 
   addLeadingZero(time);
   
 
-  date -= 1000;
+  deltaTime -= 1000;
 }
 
 function addLeadingZero (time) {
